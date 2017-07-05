@@ -4,6 +4,8 @@ using BioSequences
 using RCall
 using BioBridgeR.APE
 
+export RUN_PINNS
+
 function prepare_r(sequences::Vector{DNASequence}, seed::Int)
     R"""
     library(ape)
@@ -29,7 +31,7 @@ function prepare_r(sequences::Vector{DNASequence}, seed::Int)
     """
 end
 
-function PINNS(sequences::Vector{DNASequence}, seed::Int = rand(Int))
+function RUN_PINNS(sequences::Vector{DNASequence}, seed::Int = rand(Int))
     println("The seed has been set to: ", seed, "...")
     println("Computing parsimony phylogeny, and computing ancestral sequence...")
     prepare_r(sequences, seed)
