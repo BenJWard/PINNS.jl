@@ -31,7 +31,7 @@ function prepare_r(sequences::Vector{DNASequence}, seed::Int)
     """
 end
 
-function PINNS.RUN_PINNS(sequences::Vector{DNASequence}, seed::Int = rand(0:10000000))
+function RUN_PINNS(sequences::Vector{DNASequence}, seed::Int = rand(0:10000000))
     println("The seed has been set to: ", seed, "...")
     println("Computing parsimony phylogeny, and computing ancestral sequence...")
     prepare_r(sequences, seed)
