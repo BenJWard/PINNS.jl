@@ -1,40 +1,47 @@
 module PINNS
 
+using ArgParse
 using BioSequences
 using RCall
 using BioBridgeR.APE
 
-export RUN_PINNS
+export cmd
 
-function prepare_r(sequences::Vector{DNASequence}, seed::Int)
-    R"""
-    library(ape)
-    library(phangorn)
-    library(seqinr)
+function parse_command_line()
+    s = ArgParseSettings()
+    s.add_help = true
 
-    set.seed($seed)
+    @add_arg_table s begin
+        "nullsim"
+            help = "Simulate null distribution."
+            action = :command
+    end
 
-    SEQUENCES <- as.phyDat($sequences)
-
-    PHYLOGENY <- pratchet(SEQUENCES, trace = 0)
-
-    BASES <- c('a', 'c', 'g', 't')
-
-    ancestryEstimation <- function(seqs, tree){
-        anc <- ancestral.pars(tree, data, "ACCTRAN")
-        m <- anc[[getRoot(tree)]]
-        winners <- apply(m, 1, function(x) sample(BASES, size = 1, prob = x))
-        return(as.DNAbin(winners[attr(anc, "index")]))
-    }
-
-    ANCESTOR <- ancestryEstimation(SEQUENCES, PHYLOGENY)
-    """
+    @add_arg_table s["nullsim"] begin
+        "inputfile"
+            help = "An input fasta file."
+            arg_type = String
+            required = true
+        "reps"
+            help = "Number of simulations to produce."
+            arg_type = Integer
+            required = true
+        "seed"
+            help = "A seed to set for RNG"
+            arg_type = Integer
+            default = rand(1:1000000)
+    end
+    return parse_args(s)
 end
 
-function RUN_PINNS(sequences::Vector{DNASequence}, seed::Int = rand(0:10000000))
-    println("The seed has been set to: ", seed, "...")
-    println("Computing parsimony phylogeny, and computing ancestral sequence...")
-    prepare_r(sequences, seed)
+function cmd()
+    args = parse_command_line()
+    if arguments["%COMMAND%"] == "nullsim"
+        args = arguments["nullsim"]
+        nullsim(args["inputfile"], args["seed"], args["reps"])
+    end
 end
+
+include("simulate.jl")
 
 end # Module PINNS.
