@@ -24,18 +24,18 @@ function parse_command_line()
             required = true
         "reps"
             help = "Number of simulations to produce."
-            arg_type = Integer
+            arg_type = Int64
             required = true
         "seed"
             help = "A seed to set for RNG"
-            arg_type = Integer
+            arg_type = Int64
             default = rand(1:1000000)
     end
     return parse_args(s)
 end
 
 function cmd()
-    args = parse_command_line()
+    arguments = parse_command_line()
     if arguments["%COMMAND%"] == "nullsim"
         args = arguments["nullsim"]
         nullsim(args["inputfile"], args["seed"], args["reps"])

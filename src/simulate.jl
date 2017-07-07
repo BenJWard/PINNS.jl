@@ -2,7 +2,7 @@
 
 
 function nullsim(file::String, seed::Int, reps::Int)
-    prepare_r(seed, file)
+    prepare_r(seed)
     make_ancestry_r(file)
     generate_simulations(file, reps)
 end
@@ -11,7 +11,6 @@ function prepare_r(seed::Int)
     R"""
     library(ape)
     library(phangorn)
-    library(seqinr)
 
     set.seed($seed)
 
@@ -69,7 +68,9 @@ function generate_simulations(file::String, reps::Int)
     sname = "nullsim_$file"
     aname = "ancestor_$file"
     R"""
-    putToFile(generateSimulations(mlFit, ancestor, $reps), $sname)
-    putToFile(as.DNAbin(ancestor), $aname)
+    sims <- generateSimulations(mlFit, ancestor, $reps)
+    rownames(sims) <- paste(names(sequences), rep(1:$reps, each = length(sequences)))
+    putToFile(sims, $sname)
+    putToFile(as.list(as.DNAbin(ancestor)), $aname)
     """
 end
