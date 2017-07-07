@@ -1,18 +1,18 @@
 
 
 function nullsim(file::String, seed::Int, reps::Int, model::String, treemethod::String, ancmethod::String)
-    sim_file = "nullsim_$file"
-    anc_file = "ancestor_$file"
+    simfile = "nullsim_$file"
+    ancfile = "ancestor_$file"
     prepare_r(seed)
     R"""
     sequences <- as.phyDat(read.dna($file, format = "fasta"))
     tree <- initialTree(sequences, $model, $treemethod)
     mlFit <- refineML(tree, sequences, $model)
     anc <- reconstructAncestor(mlFit, tree, $ancmethod)
-    sims <- generateSimulations(mlFit, anc, $reps)
+    sims <- generateAlignments(mlFit, anc, $reps)
     rownames(sims) <- paste(names(sequences), rep(1:$reps, each = length(sequences)))
-    sendToFile(sims, $sname)
-    sendToFile(as.list(as.DNAbin(ancestor)), $aname)
+    sendToFile(sims, $simfile)
+    sendToFile(as.list(as.DNAbin(anc)), $ancfile)
     """
 end
 
@@ -34,9 +34,9 @@ function prepare_r(seed::Int)
         return(tree)
     }
 
-    refineML <- function(tree, data, model){
-        mlFit <- pml(tree, data, model)
-        mlFit <- optim.pml(mlFit, model = model, control = pml.control(trace = 0))
+    refineML <- function(phy, seq, mod){
+        mlFit <- pml(phy, seq, model = mod)
+        mlFit <- optim.pml(mlFit, model = mod, control = pml.control(trace = 0))
         return(mlFit)
     }
 
@@ -53,7 +53,7 @@ function prepare_r(seed::Int)
     }
 
     generateAlignments <- function(mlfit, root, reps){
-        return(do.call(rbind, lapply(1:reps, function(x) generateSimulation(mlfit, root))))
+        return(do.call(rbind, lapply(1:reps, function(x) generateAlignment(mlfit, root))))
     }
 
     sendToFile <- function(seqs, filename){

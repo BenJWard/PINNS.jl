@@ -35,9 +35,9 @@ function parse_command_line()
             arg_type = String
             default = "nj"
         "--submodel", "-s"
-            help = "The substitution model used in model fitting and ancestral sequence estimation - 'JC69' or 'F81'."
+            help = "The substitution model used in model fitting and ancestral sequence estimation - 'JC' or 'F81'."
             arg_type = String
-            default = "JC69"
+            default = "JC"
         "--ancmethod", "-a"
             help = "the criterion to assign the internal nodes during ancestral sequence reconstruction. - 'marginal', 'ml', or 'bayes'."
             arg_type = String
