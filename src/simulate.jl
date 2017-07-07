@@ -1,76 +1,63 @@
 
 
-
-function nullsim(file::String, seed::Int, reps::Int)
+function nullsim(file::String, seed::Int, reps::Int, model::String, treemethod::String, ancmethod::String)
+    sim_file = "nullsim_$file"
+    anc_file = "ancestor_$file"
     prepare_r(seed)
-    make_ancestry_r(file)
-    generate_simulations(file, reps)
+    R"""
+    sequences <- as.phyDat(read.dna($file, format = "fasta"))
+    tree <- initialTree(sequences, $model, $treemethod)
+    mlFit <- refineML(tree, sequences, $model)
+    anc <- reconstructAncestor(mlFit, tree, $ancmethod)
+    sims <- generateSimulations(mlFit, anc, $reps)
+    rownames(sims) <- paste(names(sequences), rep(1:$reps, each = length(sequences)))
+    sendToFile(sims, $sname)
+    sendToFile(as.list(as.DNAbin(ancestor)), $aname)
+    """
 end
 
 function prepare_r(seed::Int)
     R"""
     library(ape)
     library(phangorn)
-
     set.seed($seed)
 
     BASES <- c('a', 'c', 'g', 't')
 
-    generateSimulation <- function(model, root){
-        return(as.DNAbin(simSeq(model, l = length(root), rootseq = root)))
+    initialTree <- function(data, model, method){
+        distance <- dist.ml(data, model)
+        tree <- switch(tolower(method),
+                       nj = NJ(distance),
+                       upgma = upgma(distance),
+                       stop("Invalid tree building method")
+                )
+        return(tree)
     }
 
-    generateSimulations <- function(model, root, reps){
-        return(do.call(rbind, lapply(1:reps, function(x) generateSimulation(model, root))))
+    refineML <- function(tree, data, model){
+        mlFit <- pml(tree, data, model)
+        mlFit <- optim.pml(mlFit, model = model, control = pml.control(trace = 0))
+        return(mlFit)
     }
 
-    putToFile <- function(seqs, filename){
+    reconstructAncestor <- function(fitmodel, tree, method){
+        anc <- ancestral.pml(fitmodel, tolower(method))
+        ancMat <- anc[[getRoot(tree)]]
+        winners <- apply(ancMat, 1, function(x) sample(BASES, size = 1, prob = x))
+        ancestor <- winners[attr(anc, "index")]
+        return(ancestor)
+    }
+
+    generateAlignment <- function(mlfit, root){
+        return(as.DNAbin(simSeq(mlfit, l = length(root), rootseq = root)))
+    }
+
+    generateAlignments <- function(mlfit, root, reps){
+        return(do.call(rbind, lapply(1:reps, function(x) generateSimulation(mlfit, root))))
+    }
+
+    sendToFile <- function(seqs, filename){
         write.dna(seqs, file = filename, format = "fasta")
     }
-    """
-end
-
-function load_seqs_r(file::String)
-    R"""
-    sequences <- as.phyDat(read.dna($file, format = "fasta"))
-    """
-end
-
-function load_seqs_r(seqs)
-    R"""
-    sequences <- as.phyDat($seqs)
-    """
-end
-
-function make_ancestry_r(file::String)
-    load_seqs_r(file)
-    make_ancestry_r()
-end
-
-function make_ancestry_r(seqs)
-    load_seqs_r(seqs)
-    make_ancestry_r()
-end
-
-function make_ancestry_r()
-    R"""
-    phylogeny <- acctran(pratchet(sequences, trace = 0), sequences)
-    mlFit <- pml(phylogeny, sequences)
-    mlFit <- optim.pml(mlFit, model="F81", control = pml.control(trace=0))
-    anc <- ancestral.pml(mlFit, "ml")
-    ancMat <- anc[[getRoot(phylogeny)]]
-    winners <- apply(ancMat, 1, function(x) sample(BASES, size = 1, prob = x))
-    ancestor <- winners[attr(anc, "index")]
-    """
-end
-
-function generate_simulations(file::String, reps::Int)
-    sname = "nullsim_$file"
-    aname = "ancestor_$file"
-    R"""
-    sims <- generateSimulations(mlFit, ancestor, $reps)
-    rownames(sims) <- paste(names(sequences), rep(1:$reps, each = length(sequences)))
-    putToFile(sims, $sname)
-    putToFile(as.list(as.DNAbin(ancestor)), $aname)
     """
 end
