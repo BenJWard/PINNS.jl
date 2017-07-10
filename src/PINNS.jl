@@ -15,6 +15,9 @@ function parse_command_line()
         "nullsim"
             help = "Simulate null distribution."
             action = :command
+        "process"
+            help = "Calculate statistics for real data and null distributions."
+            action = :command
     end
 
     @add_arg_table s["nullsim"] begin
