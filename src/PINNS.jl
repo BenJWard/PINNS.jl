@@ -43,6 +43,16 @@ function parse_command_line()
             arg_type = String
             default = "ml"
     end
+
+    @add_arg_table s["process"] begin
+        "realfile"
+            help = "The FASTA file containing your actual sequence alignment."
+            arg_type = String
+        "simfile"
+            help = "The FASTA file containing the similated sequence alignments."
+            arg_type = String
+    end
+
     return parse_args(s)
 end
 
@@ -52,8 +62,13 @@ function cmd()
         args = arguments["nullsim"]
         nullsim(args["inputfile"], args["seed"], args["reps"], args["submodel"], args["treemethod"], args["ancmethod"])
     end
+    if arguments["%COMMAND%"] == "process"
+        args = arguments["process"]
+        process(args[realfile], args[simfile])
+    end
 end
 
 include("simulate.jl")
+include("process.jl")
 
 end # Module PINNS.
