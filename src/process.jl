@@ -1,24 +1,36 @@
 
 function process(realname::String, simname::String)
-    names, seqs = readreal(realname)
-    println(names)
-    println(seqs)
-end
+    open(fname, "r") do file
+        readreal()
 
-function readreal(fname::String)
-    names = Vector{String}()
-    sequences = Vector{DNASequence}()
-
-    reader = FASTA.Reader(open(fname, "r"))
-    record = FASTA.Record()
-
-    while !eof(reader)
-        read!(reader, record)
-        push!(names, FASTA.identifier(record))
-        push!(sequences, FASTA.sequence(record))
     end
 
-    close(reader)
 
-    return names, sequences
+    simreader = FASTA.Reader(open(simname), "r")
+
+    names, seqs = readreal(realname)
+    nseqs = length(seqs)
+    println(names)
+    println(seqs)
+
+
+end
+
+function readreal(filename)
+    open(filename, "r") do file
+        names = Vector{String}()
+        sequences = Vector{DNASequence}()
+        record = FASTA.Record()
+        reader = FASTA.Reader(file)
+        while !eof(reader)
+            read!(reader, record)
+            push!(names, FASTA.identifier(record))
+            push!(sequences, FASTA.sequence(record))
+        end
+        return names, sequences
+    end
+end
+
+function readsim(fh::FASTA.Reader)
+
 end
