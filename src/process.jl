@@ -7,7 +7,7 @@ end
 
 function readreal(fname::String)
     names = Vector{String}()
-    seqeucnes = Vector{DNASequence}()
+    sequences = Vector{DNASequence}()
 
     reader = FASTA.Reader(open(fname, "r"))
     record = FASTA.Record()
