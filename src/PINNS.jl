@@ -67,7 +67,7 @@ function cmd()
     end
     if arguments["%COMMAND%"] == "process"
         args = arguments["process"]
-        process(args[realfile], args[simfile])
+        process(args["realfile"], args["simfile"])
     end
 end
 
