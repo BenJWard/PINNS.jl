@@ -1,17 +1,16 @@
 
 function process(realname::String, simname::String)
-    open(fname, "r") do file
-        readreal()
-
-    end
-
-
-    simreader = FASTA.Reader(open(simname), "r")
-
     names, seqs = readreal(realname)
     nseqs = length(seqs)
     println(names)
     println(seqs)
+
+
+
+
+    simreader = FASTA.Reader(open(simname), "r")
+
+
 
 
 end
