@@ -7,14 +7,16 @@ function process(realname::String, simname::String)
         sequence_records = open(realname, "r") do file
             collect(FASTA.Reader(file))
         end
-        println(sequence_records)
+        println("Processing real dataset...")
         process_seq_records(output, sequence_records, true)
-        exit()
+        println("Processing simulated dataset...")
         while !eof(simreader)
-            for i in 1:endof(seqs)
-                i
+            @inbounds for i in 1:endof(sequence_records)
+                read!(simreader, sequence_records[i])
             end
+            process_seq_records(output, sequence_records, false)
         end
+        println("Finished.")
     finally
         close(output)
         close(simreader)
