@@ -7,7 +7,7 @@ function process(realname::String, simname::String)
     output = open("$(basename(realname)).csv", "w")
     println(output, "Seq1, Seq2, Statistic, Real")
     #simreader = FASTA.Reader(open(simname, "r"))
-    write_rep_to_file(output, names, pairwise_dNdS(NG86, seqs), true)
+    write_rep_to_file(output, names, map(x -> x[1] / x[2], pairwise_dNdS(NG86, seqs)), true)
 
 
 end
