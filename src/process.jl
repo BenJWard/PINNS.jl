@@ -13,8 +13,8 @@ function process(realname::String, simname::String)
 end
 
 @inline function write_rep_to_file(io, names, results, real)
-    for i ∈ 1:endof(names), j ∈ (i + 1):endof(names)
-        println(io, names[i], ", ", names[k], ", ", results[i, j], ", ", real)
+    @inbounds for i ∈ 1:endof(names), j ∈ (i + 1):endof(names)
+        println(io, names[i], ", ", names[j], ", ", results[i, j], ", ", real)
     end
 end
 
