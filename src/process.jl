@@ -4,7 +4,7 @@ function process(realname::String, simname::String)
     nseqs = length(seqs)
     println(names)
     println(seqs)
-    println(pairwise_dNdS(seqs))
+    println(pairwise_dNdS(NG86, seqs))
 
     simreader = FASTA.Reader(open(simname, "r"))
     output = open("$(basename(realname)).csv", "w")
