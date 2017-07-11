@@ -14,6 +14,8 @@ function process(realname::String, simname::String)
         write_rep_to_file(output, names, pairwise_dNdS(NG86, seqs), true)
         while !eof(simreader)
             for i in 1:endof(seqs)
+                i
+            end
         end
     finally
         close(output)
