@@ -14,8 +14,8 @@ end
 
 @inline function write_rep_to_file(io, names, results, real)
     @inbounds for i ∈ 1:endof(names), j ∈ (i + 1):endof(names)
-        (dN, dS) = results[i, j]
-        println(io, names[i], ", ", names[j], ", ", dN, ", ", dS, ", ", real)
+        dNdS = results[i, j]
+        println(io, names[i], ", ", names[j], ", ", dNdS[1], ", ", dNdS[2], ", ", real)
     end
 end
 
