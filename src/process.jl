@@ -1,15 +1,24 @@
 
 function process(realname::String, simname::String)
-    names, seqs = readreal(realname)
-    nseqs = length(seqs)
-    println(names)
-    println(seqs)
     output = open("$(basename(realname)).csv", "w")
-    println(output, "Seq1, Seq2, dN, dS, Real")
-    #simreader = FASTA.Reader(open(simname, "r"))
-    write_rep_to_file(output, names, pairwise_dNdS(NG86, seqs), true)
+    simreader = FASTA.Reader(open(simname, "r"))
+    try
+        println(output, "Seq1, Seq2, dN, dS, Real")
+        sequence_records = open(realname, "r") do file
+            collect(FASTA.Reader(file))
+        end
 
 
+        println(sequence_records)
+        exit()
+        write_rep_to_file(output, names, pairwise_dNdS(NG86, seqs), true)
+        while !eof(simreader)
+            for i in 1:endof(seqs)
+        end
+    finally
+        close(output)
+        close(simreader)
+    end
 end
 
 @inline function write_rep_to_file(io, names, results, real)
@@ -18,7 +27,6 @@ end
         println(io, names[i], ", ", names[j], ", ", dN, ", ", dS, ", ", real)
     end
 end
-
 
 function readreal(filename)
     open(filename, "r") do file
