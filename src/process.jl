@@ -37,12 +37,13 @@ end
     write_rep_to_file(output,
                       FASTA.identifier.(records),
                       pairwise_dNdS(NG86, sequences),
-                      mcounts, isreal)
+                      mcounts,
+                      isreal)
 end
 
 @inline function write_rep_to_file(io, names, results, counts, real)
     @inbounds for i ∈ 1:endof(names), j ∈ (i + 1):endof(names)
         dN, dS = results[i, j]
-        println(io, names[i], ", ", names[j], ", ", dN, ", ", dS, ", ", first(counts[i, j]), ", " real)
+        println(io, names[i], ", ", names[j], ", ", dN, ", ", dS, ", ", first(counts[i, j]), ", ", real)
     end
 end
