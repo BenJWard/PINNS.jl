@@ -4,7 +4,7 @@ using ArgParse
 using BioSequences
 using RCall
 using BioBridgeR.APE
-using GeneticVariation: NG86, pairwise_dNdS
+using GeneticVariation: NG86, pairwise_dNdS, Mutated
 
 export cmd
 
