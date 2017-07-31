@@ -46,6 +46,9 @@ function parse_command_line()
             help = "the criterion to assign the internal nodes during ancestral sequence reconstruction. - 'marginal', 'ml', or 'bayes'."
             arg_type = String
             default = "ml"
+        "--outdir", "-o"
+            arg_type = String
+            default = "./"
     end
 
     @add_arg_table s["process"] begin
@@ -64,7 +67,10 @@ function cmd()
     arguments = parse_command_line()
     if arguments["%COMMAND%"] == "nullsim"
         args = arguments["nullsim"]
-        nullsim(args["inputfile"], args["seed"], args["reps"], args["submodel"], args["treemethod"], args["ancmethod"])
+        nullsim(realpath(expanduser(args["inputfile"])),
+                realpath(expanduser(args["outdir"])),
+                args["seed"], args["reps"], args["submodel"],
+                args["treemethod"], args["ancmethod"])
     end
     if arguments["%COMMAND%"] == "process"
         args = arguments["process"]

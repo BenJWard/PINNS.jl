@@ -1,12 +1,14 @@
 
 
-function nullsim(file::String, seed::Int, reps::Int, model::String, treemethod::String, ancmethod::String)
-    simfile = "nullsim_$file"
-    ancfile = "ancestor_$file"
+function nullsim(file::String, outdir::String, seed::Int, reps::Int, model::String, treemethod::String, ancmethod::String)
+    simfile = joinpath(outdir, string("nullsim_", basename(file)))
+    ancfile = joinpath(outdir, string("ancestor_", basename(file)))
+    treefile = joinpath(outdir, string("tree_", basename(file), ".txt"))
     prepare_r(seed)
     R"""
     sequences <- as.phyDat(read.dna($file, format = "fasta"))
     tree <- initialTree(sequences, $model, $treemethod)
+    write.tree(tree, file = $treefile)
     mlFit <- refineML(tree, sequences, $model)
     anc <- reconstructAncestor(mlFit, tree, $ancmethod)
     sims <- generateAlignments(mlFit, anc, $reps)
